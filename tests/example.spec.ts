@@ -35,7 +35,7 @@ test('add to cart 03', async ({ page }) => {
   expect(num).toEqual("1");
   console.log(num);
 });
-test('Login', async ({ page }) => {
+test('Login', async ({ page, context }) => {
   //login
   await page.goto('https://bai-1.onshopbase.com/admin/');
   await page.waitForTimeout(2*1000);
@@ -70,10 +70,33 @@ test('Login', async ({ page }) => {
   await page.click("//span[normalize-space()='Manual']");
   await page.click("//span[normalize-space()='Save']");
   await page.click("//button[normalize-space()='Add product']");
-  await page.locator("//input[@placeholder='Search for product']").fill('iPhone 14 Pro Max 128GB - MaiLe');
+  await page.locator("//input[@placeholder='Search for product']").type('iPhone 14 Pro Max 128GB - MaiLe', {
+    delay: 100,
+  });
+  await page.waitForTimeout(5 * 1000);
+  await page.click(
+    "//div[@class='item-list']//div[1]//div[1]//label[1]//span[1]"
+);
+
   await page.click("//div[@class='s-modal-footer']//span[@class='s-flex s-flex--align-center'][normalize-space()='Save']");
-  await page.click("//a[@class='s-button is-outline is-small']");
-  await page.waitForTimeout(10*1000);
+  await page.waitForTimeout(3 * 1000);
+
+  const [storefrontCollectionPage] = await Promise.all([
+    context.waitForEvent("page"),
+    await page.click("//a[@class='s-button is-outline is-small']"),
+  ]);
+
+  await storefrontCollectionPage.waitForLoadState("networkidle");
+
+  const result = await storefrontCollectionPage
+        .locator(
+            "//div[@class='row mt16 product-grid']//div[1]//div[1]//a[1]//div[2]//span[@class='title d-block cl-black']"
+        )
+        .textContent();
+        expect(result).toEqual("iPhone 14 Pro Max 128GB - MaiLe");
+
+    // Verify title
+    //expect(result).toEqual("iPhone 14 Pro Max 128GB - Maile");
   // await page.goto('https://bai-1.onshopbase.com/admin/');
   // await page.waitForTimeout(5*1000);
   // await page.click("//span[normalize-space()='Discounts']");
@@ -103,7 +126,7 @@ test('Login', async ({ page }) => {
   // await page.waitForTimeout(10*1000);
   
 });
-test('Login 2', async ({ page }) => {
+test('discount', async ({ page }) => {
   await page.goto('https://bai-1.onshopbase.com/admin/');
   await page.waitForTimeout(2*1000);
   await page.locator("//input[@id='email']").fill('tuyetle+1@beeketing.net');
@@ -117,13 +140,83 @@ test('Login 2', async ({ page }) => {
   await page.locator("//input[@placeholder='e.g. SUMMERSALE']").fill('OCG_2023_TALENT');
   await page.locator("//input[@placeholder='0']").fill('10');
   await page.click("//span[normalize-space()='Specific products']");
-  await page.locator("//input[@placeholder='Search products']").fill('iPhone 14 Pro Max 128GB - MaiLe');
-  await page.waitForTimeout(3*1000);
-  await page.click("//div[@class='select-product-component s-mt16']//span[@class='s-flex s-flex--align-center'][normalize-space()='Browse']");
-  await page.waitForTimeout(3*1000);
-  await page.click("//div[@class='s-modal-body']/div[@class='item-list']/div[2]/div[1]/label[1]/span[1]");
-  await page.click("//div[@class='s-modal-footer']//span[@class='s-flex s-flex--align-center'][normalize-space()='Save']");
+  await page.click("//input[@placeholder='Search products']");
+  await page
+        .locator("//input[@placeholder='Search products']")
+        .fill("iPhone 14 Pro Max 128GB - MaiLe");
+    await page.keyboard.press("Space");
+    await page.keyboard.press("Backspace");
+    await page.waitForTimeout(3 * 1000);
+    await page.click(
+        "//div[@class='item-list']//div[1]//div[1]//label[1]//span[1]"
+    );
+    await page.click(
+        "//div[@class='s-modal-footer']//span[@class='s-flex s-flex--align-center'][normalize-space()='Save']"
+    );
+    await page.waitForTimeout(4 * 1000);
+    await page.click("//span[normalize-space()='Save']");
+    await page.waitForTimeout(4 * 1000);
+    await page.goto('https://bai-1.onshopbase.com/products/iphone-14-pro-max-128gb-maile?digest=1fae967a481c99860f20ed19f4a8dfbbe5ee2e10e706b2c0b1ae694f41f07c66');
+    await page.waitForTimeout(3*1000);
+    await page.click("//span[normalize-space()='Add to cart']");
+    await page.click("//button[normalize-space()='Checkout']");
+    await page.locator("//input[@id='checkout_shipping_address_email']").fill("lephuongmaie@gmail.com");
+    await page.locator("//input[@id='checkout_shipping_address_first_name']").fill("Mai");
+    await page.locator("//input[@id='checkout_shipping_address_last_name']").fill("mai");
+    await page.locator("//input[@id='checkout_shipping_address_address_line1']").fill("abc");
+    await page.locator("//input[@id='checkout_shipping_address_city']").fill("abc");
+    await page
+            .locator("//input[@id='checkout_shipping_address_zip']")
+            .fill("10000");
+    await page
+            .locator("//input[@id='checkout_shipping_address_phone']")
+            .fill("0123456789");
+    await page.click("//button[normalize-space()='Continue to shipping method']");
+    await page.waitForTimeout(3 * 1000);
+    await page.locator("//input[@placeholder='Enter your promotion code']").fill("OCG_2023_TALENT");
+    await page.click("//button[normalize-space()='Apply']");
+    await page.click("//button[normalize-space()='Continue to payment method']");
+    await page
+        .frameLocator("//div[@id='stripe-card-number']//iframe")
+        .locator('[placeholder="Card number"]')
+        .fill("4242424242424242");
+    await page.waitForTimeout(3 * 1000);
+    await page.locator("//input[@placeholder='Cardholder name']").fill("Mai");
+    await page
+        .frameLocator("//div[@id='stripe-card-expiry']//iframe")
+        .locator('[placeholder="MM/YY"]')
+        .fill("0328");
+    await page
+        .frameLocator("//div[@id='stripe-card-cvc']//iframe")
+        .locator('[placeholder="CVV"]')
+        .fill("123");
+    await page.click("//button[normalize-space()='Complete order']");  
+    await page.waitForTimeout(3 * 1000);
+    const finalPrice = await page
+        .locator("//span[@class='payment-due__price']")
+        .textContent();
+    console.log(finalPrice);
+    expect(finalPrice).toEqual("$6.99");
+});
+test('edit discount', async ({ page }) => {
+  await page.goto('https://bai-1.onshopbase.com/admin/');
+  await page.waitForTimeout(2*1000);
+  await page.locator("//input[@id='email']").fill('tuyetle+1@beeketing.net');
+  await page.locator("//input[@id='password']").fill('123456');
+  await page.click("//button[@type='submit']");
+  await page.waitForTimeout(2*1000);
+  await page.goto('https://bai-1.onshopbase.com/admin/discounts');
+  await page.waitForTimeout(2*1000);
+  await page.click("//span[normalize-space()='OCG_2023_TALENT']");
+  await page.click("//i[@class='mdi mdi-clock-outline mdi-18px']");
+  await page.click("//span[normalize-space()='20']");
+  await page.click("//span[normalize-space()='Confirm']");
+  await page.waitForTimeout(2*1000);
   await page.click("//span[normalize-space()='Save']");
   await page.waitForTimeout(5*1000);
-//span[normalize-space()='Discounts']
+  const notActive = await page
+        .locator("//p[@class='text-normal text-gray400 s-mt16']")
+        .textContent();
+    console.log(notActive);
+    expect(notActive?.trim()).toEqual("Discount is not active yet.");
 });
