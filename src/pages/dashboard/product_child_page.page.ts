@@ -1,15 +1,17 @@
 import { Locator, Page, expect } from "@playwright/test";
+import { Product } from "../types/product.type";
 import { ProductPage } from "./product.page";
 export class AddProductPage extends ProductPage {
     constructor(page: Page) {
         super(page);
     }
-    async addProduct() {
-        await this.page.locator("//input[@placeholder='Short Sleeve T-Shirt']").fill('iPhone 14 Pro Max 128GB - MaiLe');
-        await this.page.locator("//input[@id='price']").fill('120');
+    async addProduct(product: Product) {
+        await this.page.locator("//input[@placeholder='Short Sleeve T-Shirt']").fill(product.name);
+        await this.page.locator("//input[@id='price']").fill(product.price + " ");
         await this.page.locator("//a[@class='pull-right']").click();
-        await this.page.locator("//input[@id='option-name']").fill('Color');
-        await this.page.locator("//input[@placeholder='Separate options with comma']").fill('Space black, Silver, Gold, Deep Purple');
+        await this.page.locator("//input[@id='option-name']").fill(product.option.name);
+        const joinedProductOptions = product.option.values.join(",");
+        await this.page.locator("//input[@placeholder='Separate options with comma']").fill('joinedProductOptions');
         await this.page.keyboard.press('Enter');
         await this.page.locator("//span[normalize-space()='Save product']").click();
     }
@@ -44,9 +46,14 @@ export class AddProductPage extends ProductPage {
         console.log(price);
         expect(price?.trim()).toEqual('$120.00');
     }
-    async deleteProduct(Name: string) {
+    async deleteProduct(nameProduct: string) {
+        await this.page.locator("//input[@placeholder='Search products']").fill(nameProduct),{delay: 100};
+        await this.page.keyboard.press('Enter');
         await this.page.click('//tbody/tr[1]/td[1]/label[1]/span[1]');
         await this.page.click("//span[normalize-space()='Action']");
-        await this.page.click(`//span[normalize-space()='Delete selected products'and normalize-space()="${Name}"]`);
-}
+        await this.page.click("//span[normalize-space()='Delete selected products']");
+        await this.page.waitForTimeout(3* 1000);
+        await this.page.click("//span[normalize-space()='Delete']");
+        
+    }
 }

@@ -86,4 +86,12 @@ export class CreateDiscountPage extends DiscountPage {
         console.log(notActive);
         expect(notActive?.trim()).toEqual("Discount is not active yet.");
     }
+    async deleteDiscount(nameDiscount:string) {
+        await this.page.locator("").fill('nameDiscount');
+        await this.page.keyboard.press('Enter');
+        await this.page.click("//tbody//span[@class='s-check']");
+        await this.page.click("//span[normalize-space()='Actions']");
+        await this.page.click("//span[normalize-space()='Delete selected collections']");
+        await this.page.click("//span[normalize-space()='Delete']");
+    }
 }

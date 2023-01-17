@@ -17,11 +17,10 @@ export class CreateCollectionPage extends CollectionPage {
         await this.page.click(
             "//div[@class='item-list']//div[1]//div[1]//label[1]//span[1]"
         );
-
         await this.page.click("//div[@class='s-modal-footer']//span[@class='s-flex s-flex--align-center'][normalize-space()='Save']");
         await this.page.waitForTimeout(3 * 1000);
     }
-    async VerifyCollection(context) {
+    async verifyCollection(context) {
         const [storefrontCollectionPage] = await Promise.all([
             context.waitForEvent("page"),
             await this.page.click("//a[@class='s-button is-outline is-small']"),
@@ -34,5 +33,13 @@ export class CreateCollectionPage extends CollectionPage {
                 )
                 .textContent();
           expect(result).toEqual("iPhone 14 Pro Max 128GB - MaiLe");
+}
+async deleteCollection(nameCollection: string) {
+    await this.page.locator("//input[@placeholder='Search collections']").fill('nameCollection');
+    await this.page.keyboard.press('Enter');
+    await this.page.click("//tbody//span[@class='s-check']");
+    await this.page.click("//span[normalize-space()='Actions']");
+    await this.page.click("//span[normalize-space()='Delete selected collections']");
+    await this.page.click("//span[normalize-space()='Delete']");
 }
 }

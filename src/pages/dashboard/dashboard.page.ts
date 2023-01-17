@@ -12,5 +12,6 @@ export class DashboardPage {
         await this.page.locator(`//span[@class="unite-ui-dashboard__aside--text" and normalize-space()="${menuName}"]`).click();
     }
     
+    
 
 }
