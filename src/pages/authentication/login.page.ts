@@ -11,7 +11,7 @@ export class LoginPage{
         this.loginButton = page.locator("//button[@type='submit']");
     }
     async goto() {
-        await this.page.goto("https://bai-1.onshopbase.com/admin/?shop_data=bai-1.onshopbase.com&auth=JTdCJTIyaW");
+        await this.page.goto("https://accounts.shopbase.com/sign-in");
         await this.page.waitForTimeout(3 * 1000);
     }
     async fillAccount(){
@@ -21,5 +21,6 @@ export class LoginPage{
      async login(){
         await this.loginButton.click();
         await this.page.waitForTimeout(3 * 1000);
-     }   
+        await this.page.goto("https://maile-add-discount.onshopbase.com/admin");
+}
 }
